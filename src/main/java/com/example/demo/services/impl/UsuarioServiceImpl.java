@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,10 +48,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                 usuarioSalvo.getEmail(),
                 new PerfilResponseDTO(
                         usuarioSalvo.getPerfil().getId(),
-                        usuarioSalvo.getPerfil().getNome(),
-                        usuarioSalvo.getPerfil().getPermissoes().stream()
-                                .map(permissao -> new PermissaoResponseDTO(permissao.getId(), permissao.getNome()))
-                                .toList()
+                        usuarioSalvo.getPerfil().getNome()
                 )
         );
 
@@ -67,15 +65,77 @@ public class UsuarioServiceImpl implements UsuarioService {
                         usuario.getEmail(),
                         new PerfilResponseDTO(
                                 usuario.getPerfil().getId(),
-                                usuario.getPerfil().getNome(),
-                                usuario.getPerfil().getPermissoes().stream()
-                                        .map(permissao -> new PermissaoResponseDTO(
-                                                permissao.getId(),
-                                                permissao.getNome()
-                                        ))
-                                        .toList()
+                                usuario.getPerfil().getNome()
                         )
                 ))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public UsuarioResponseDTO findById(Long id) {
+        Usuario usuario = usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado. "));
+
+        return new UsuarioResponseDTO(
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getEmail(),
+                new PerfilResponseDTO(
+                        usuario.getPerfil().getId(),
+                        usuario.getPerfil().getNome()
+                )
+        );
+    }
+
+    @Override
+    public UsuarioResponseDTO findByEmail(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email);
+
+        if (usuario != null) {
+            throw new RuntimeException("Usuário não encontrado. ");
+        }
+
+        return new UsuarioResponseDTO(
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getEmail(),
+                new PerfilResponseDTO(
+                        usuario.getPerfil().getId(),
+                        usuario.getPerfil().getNome()
+                )
+        );
+    }
+
+    @Override
+    public Optional<UsuarioResponseDTO> update(UsuarioRequestDTO dto, Long id) {
+        Usuario usuarioExiste = usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado. "));
+
+        Perfil perfil = perfilRespository.findById(dto.getPerfil_id()).orElseThrow(() -> new RuntimeException("Perfil não encontrado. "));
+
+        if(dto.getNome() != null)
+            usuarioExiste.setNome(dto.getNome());
+
+        if(dto.getEmail() != null)
+            usuarioExiste.setEmail(dto.getEmail());
+
+        if(dto.getPerfil_id() != null)
+            usuarioExiste.setPerfil(perfil);
+
+        Usuario usuarioSalvo = usuarioRepository.save(usuarioExiste);
+
+        return Optional.of(new UsuarioResponseDTO(
+                usuarioSalvo.getId(),
+                usuarioSalvo.getNome(),
+                usuarioSalvo.getEmail(),
+                new PerfilResponseDTO(
+                        usuarioSalvo.getPerfil().getId(),
+                        usuarioSalvo.getPerfil().getNome()
+                )
+        ));
+    }
+
+    @Override
+    public void delete(Long id) {
+        Usuario usuario = usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado. "));
+        usuarioRepository.delete(usuario);
     }
 }
