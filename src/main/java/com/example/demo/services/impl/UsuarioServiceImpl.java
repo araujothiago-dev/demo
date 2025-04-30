@@ -1,9 +1,10 @@
 package com.example.demo.services.impl;
 
 import com.example.demo.dto.PerfilResponseDTO;
-import com.example.demo.dto.PermissaoResponseDTO;
 import com.example.demo.dto.UsuarioRequestDTO;
 import com.example.demo.dto.UsuarioResponseDTO;
+import com.example.demo.exceptions.NotFoundException;
+import com.example.demo.exceptions.UnicoException;
 import com.example.demo.models.Perfil;
 import com.example.demo.models.Usuario;
 import com.example.demo.repositories.PerfilRespository;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,10 +30,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario emailExiste = usuarioRepository.findByEmail(dto.getEmail());
 
         if (emailExiste != null) {
-            throw new RuntimeException("E-mail já cadastrado. ");
+            throw new UnicoException("E-mail já cadastrado. ");
         }
 
-        Perfil perfil = perfilRespository.findById(dto.getPerfil_id()).orElseThrow(() -> new RuntimeException("Perfil não encontrado. "));
+        Perfil perfil = perfilRespository.findById(dto.getPerfil_id()).orElseThrow(() -> new NotFoundException("Perfil não encontrado. "));
 
         Usuario usuario = new Usuario();
         usuario.setNome(dto.getNome());
@@ -73,7 +73,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public UsuarioResponseDTO findById(Long id) {
-        Usuario usuario = usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado. "));
+        Usuario usuario = usuarioRepository.findById(id).orElseThrow(() -> new NotFoundException("Usuário não encontrado. "));
 
         return new UsuarioResponseDTO(
                 usuario.getId(),
@@ -88,15 +88,10 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public UsuarioResponseDTO findByEmail(String email) {
-        System.out.println("email " + email);
-
         Usuario usuario = usuarioRepository.findByEmail(email);
 
-        System.out.println("email " + usuario.getEmail());
-
-
         if (usuario == null) {
-            throw new RuntimeException("Usuário não encontrado. ");
+            throw new NotFoundException("Usuário não encontrado. ");
         }
 
         return new UsuarioResponseDTO(
@@ -114,9 +109,9 @@ public class UsuarioServiceImpl implements UsuarioService {
     public void update(
             UsuarioRequestDTO dto,
             Long id) throws RuntimeException {
-        Usuario usuarioExiste = usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado. "));
+        Usuario usuarioExiste = usuarioRepository.findById(id).orElseThrow(() -> new NotFoundException("Usuário não encontrado. "));
 
-        Perfil perfil = perfilRespository.findById(dto.getPerfil_id()).orElseThrow(() -> new RuntimeException("Perfil não encontrado. "));
+        Perfil perfil = perfilRespository.findById(dto.getPerfil_id()).orElseThrow(() -> new NotFoundException("Perfil não encontrado. "));
 
         if(dto.getNome() != null)
             usuarioExiste.setNome(dto.getNome());
@@ -131,8 +126,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public void delete(Long id) {
-        Usuario usuario = usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado. "));
+    public void delete(Long id) throws RuntimeException{
+        Usuario usuario = usuarioRepository.findById(id).orElseThrow(() -> new NotFoundException("Usuário não encontrado. "));
         usuarioRepository.delete(usuario);
     }
 }

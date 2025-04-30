@@ -45,17 +45,19 @@ public class UsuarioController {
         return ResponseEntity.ok().body(usuario);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping
     public ResponseEntity<?> update(
-            @PathVariable Long id,
-            @RequestBody UsuarioRequestDTO dto) throws SQLException {
+            @RequestParam(name = "id") Long id,
+            @RequestBody UsuarioRequestDTO dto
+    ) throws SQLException {
         usuarioService.update(dto, id);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     public ResponseEntity<?> delete(
-            @PathVariable Long id) {
+            @RequestParam(name = "id") Long id
+    ) throws SQLException{
         usuarioService.delete(id);
         return ResponseEntity.noContent().build();
     }
