@@ -11,6 +11,6 @@ public interface UsuarioService {
     List<UsuarioResponseDTO> findAll();
     UsuarioResponseDTO findById(Long id);
     UsuarioResponseDTO findByEmail(String email);
-    Optional<UsuarioResponseDTO> update(UsuarioRequestDTO usuario, Long id);
+    void update(UsuarioRequestDTO usuario, Long id);
     void delete(Long id);
 }

@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.io.Serializable;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
@@ -17,10 +19,10 @@ public class Usuario implements Serializable {
     @Column
     private String nome;
 
-    @Column
+    @Column(unique = true)
     private String email;
 
-    @OneToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "perfil_id")
-    private Perfil Perfil;
+    private Perfil perfil;
 }

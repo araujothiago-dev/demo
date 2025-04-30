@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +19,8 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> create(UsuarioRequestDTO dto) {
+    public ResponseEntity<UsuarioResponseDTO> create(
+            @RequestBody UsuarioRequestDTO dto) {
         UsuarioResponseDTO usuario = usuarioService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
     }
@@ -30,25 +32,30 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> findById(@RequestParam Long id) {
+    public ResponseEntity<UsuarioResponseDTO> findById(
+            @PathVariable Long id) {
         UsuarioResponseDTO usuario = usuarioService.findById(id);
         return ResponseEntity.ok().body(usuario);
     }
 
-    @GetMapping("/{email}")
-    public ResponseEntity<UsuarioResponseDTO> findByEmail(@RequestParam String email) {
+    @GetMapping("/email")
+    public ResponseEntity<UsuarioResponseDTO> findByEmail(
+            @RequestParam String email) {
         UsuarioResponseDTO usuario = usuarioService.findByEmail(email);
         return ResponseEntity.ok().body(usuario);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Optional<UsuarioResponseDTO>> update(@RequestBody UsuarioRequestDTO dto, @RequestParam Long id) {
-        Optional<UsuarioResponseDTO> usuario = usuarioService.update(dto, id);
-        return ResponseEntity.ok().body(usuario);
+    public ResponseEntity<?> update(
+            @PathVariable Long id,
+            @RequestBody UsuarioRequestDTO dto) throws SQLException {
+        usuarioService.update(dto, id);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@RequestParam Long id) {
+    public ResponseEntity<?> delete(
+            @PathVariable Long id) {
         usuarioService.delete(id);
         return ResponseEntity.noContent().build();
     }

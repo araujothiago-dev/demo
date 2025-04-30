@@ -26,18 +26,18 @@ public class UsuarioServiceImpl implements UsuarioService {
     private PerfilRespository perfilRespository;
 
     @Override
-    public UsuarioResponseDTO create(UsuarioRequestDTO usuarioDto) {
-        Usuario emailExiste = usuarioRepository.findByEmail(usuarioDto.getEmail());
+    public UsuarioResponseDTO create(UsuarioRequestDTO dto) {
+        Usuario emailExiste = usuarioRepository.findByEmail(dto.getEmail());
 
         if (emailExiste != null) {
             throw new RuntimeException("E-mail já cadastrado. ");
         }
 
-        Perfil perfil = perfilRespository.findById(usuarioDto.getPerfil_id()).orElseThrow(() -> new RuntimeException("Perfil não encontrado. "));
+        Perfil perfil = perfilRespository.findById(dto.getPerfil_id()).orElseThrow(() -> new RuntimeException("Perfil não encontrado. "));
 
         Usuario usuario = new Usuario();
-        usuario.setNome(usuarioDto.getNome());
-        usuario.setEmail(usuarioDto.getEmail());
+        usuario.setNome(dto.getNome());
+        usuario.setEmail(dto.getEmail());
         usuario.setPerfil(perfil);
 
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
@@ -88,9 +88,14 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public UsuarioResponseDTO findByEmail(String email) {
+        System.out.println("email " + email);
+
         Usuario usuario = usuarioRepository.findByEmail(email);
 
-        if (usuario != null) {
+        System.out.println("email " + usuario.getEmail());
+
+
+        if (usuario == null) {
             throw new RuntimeException("Usuário não encontrado. ");
         }
 
@@ -106,7 +111,9 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public Optional<UsuarioResponseDTO> update(UsuarioRequestDTO dto, Long id) {
+    public void update(
+            UsuarioRequestDTO dto,
+            Long id) throws RuntimeException {
         Usuario usuarioExiste = usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado. "));
 
         Perfil perfil = perfilRespository.findById(dto.getPerfil_id()).orElseThrow(() -> new RuntimeException("Perfil não encontrado. "));
@@ -120,17 +127,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         if(dto.getPerfil_id() != null)
             usuarioExiste.setPerfil(perfil);
 
-        Usuario usuarioSalvo = usuarioRepository.save(usuarioExiste);
-
-        return Optional.of(new UsuarioResponseDTO(
-                usuarioSalvo.getId(),
-                usuarioSalvo.getNome(),
-                usuarioSalvo.getEmail(),
-                new PerfilResponseDTO(
-                        usuarioSalvo.getPerfil().getId(),
-                        usuarioSalvo.getPerfil().getNome()
-                )
-        ));
+        usuarioRepository.save(usuarioExiste);
     }
 
     @Override
