@@ -1,7 +1,10 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.PerfilResponseDTO;
 import com.example.demo.dto.UsuarioRequestDTO;
 import com.example.demo.dto.UsuarioResponseDTO;
+import com.example.demo.models.Permissao;
+import com.example.demo.repositories.PerfilRespository;
 import com.example.demo.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,9 +34,9 @@ public class UsuarioController {
         return ResponseEntity.ok().body(usuarios);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id")
     public ResponseEntity<UsuarioResponseDTO> findById(
-            @PathVariable Long id) {
+            @RequestParam(name = "id")  Long id) {
         UsuarioResponseDTO usuario = usuarioService.findById(id);
         return ResponseEntity.ok().body(usuario);
     }
@@ -60,5 +63,21 @@ public class UsuarioController {
     ) throws SQLException{
         usuarioService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/perfil")
+    public ResponseEntity<PerfilResponseDTO> findPerfilByUsuarioId(
+            @RequestParam(name = "id") Long id
+    ) throws SQLException {
+        PerfilResponseDTO perfil = usuarioService.findPerfilByUsuarioId(id);
+        return ResponseEntity.ok().body(perfil);
+    }
+
+    @GetMapping("/permissoes")
+    public ResponseEntity<List<Permissao>> findPermissaoByUsuarioId(
+            @RequestParam(name = "id") Long id
+    ) throws SQLException {
+        List<Permissao> permissoes = usuarioService.findPermissoesByUsuarioId(id);
+        return ResponseEntity.ok().body(permissoes);
     }
 }

@@ -6,6 +6,7 @@ import com.example.demo.dto.UsuarioResponseDTO;
 import com.example.demo.exceptions.NotFoundException;
 import com.example.demo.exceptions.UnicoException;
 import com.example.demo.models.Perfil;
+import com.example.demo.models.Permissao;
 import com.example.demo.models.Usuario;
 import com.example.demo.repositories.PerfilRespository;
 import com.example.demo.repositories.UsuarioRepository;
@@ -13,6 +14,7 @@ import com.example.demo.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -129,5 +131,31 @@ public class UsuarioServiceImpl implements UsuarioService {
     public void delete(Long id) throws RuntimeException{
         Usuario usuario = usuarioRepository.findById(id).orElseThrow(() -> new NotFoundException("Usuário não encontrado. "));
         usuarioRepository.delete(usuario);
+    }
+
+    @Override
+    public PerfilResponseDTO findPerfilByUsuarioId(Long id) {
+        Usuario usuario = usuarioRepository.findById(id).orElseThrow(() -> new NotFoundException("Perfil não encontrado. "));
+
+        return new PerfilResponseDTO(
+                usuario.getPerfil().getId(),
+                usuario.getPerfil().getNome()
+        );
+    }
+
+    // TODO: implementar List<PermissaoResponseDTO>
+    @Override
+    public List<Permissao> findPermissoesByUsuarioId(Long id) {
+        Usuario usuario = usuarioRepository.findById(id).orElseThrow(() -> new NotFoundException("Permissões não encontrado. "));
+
+        Perfil perfil = usuario.getPerfil();
+
+        if (perfil == null) {
+            return Collections.emptyList();
+        }
+
+        return perfil.getPermissoes().stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 }
