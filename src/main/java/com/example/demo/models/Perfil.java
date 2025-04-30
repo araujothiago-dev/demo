@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@NoArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
@@ -20,6 +21,9 @@ public class Perfil {
     @Column
     private String nome;
 
+    @OneToMany(mappedBy = "perfil")
+    private List<Usuario> usuarios;
+
     @ManyToMany
     @JoinTable(
             name = "perfil_permissao",
@@ -27,4 +31,10 @@ public class Perfil {
             inverseJoinColumns = @JoinColumn(name = "permissao_id")
     )
     private List<Permissao> permissoes = new ArrayList<>();
+
+    public Perfil(Long id, String nome, List<Permissao> permissoes) {
+        this.id = id;
+        this.nome = nome;
+        this.permissoes = permissoes;
+    }
 }
